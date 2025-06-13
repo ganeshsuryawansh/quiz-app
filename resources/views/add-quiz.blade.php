@@ -43,7 +43,7 @@
                 Total MCQs: {{ $totalMcqs }}
 
                 @if ($totalMcqs>0)
-                <a class="text-yellow-500 text-sm" href="">Show MCQs</a>
+                <a class="text-yellow-500 text-sm" href="show-quiz/{{ session('quizDetails')->id }}">Show MCQs</a>
                 @endif
             </p>
 
