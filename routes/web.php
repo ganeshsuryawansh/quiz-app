@@ -27,3 +27,4 @@ Route::get('quiz-list/{id}/{category}', [AdminController::class, 'quizList']);
 
 // User
 Route::get('/', [UserController::class, 'welcome']);
+Route::get('user-quiz-list/{id}/{category}', [UserController::class, 'userquizList']);
