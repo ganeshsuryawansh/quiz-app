@@ -4,10 +4,11 @@
             Quiz APP
         </div>
         <div class="space-x-4">
-            <a class="text-green-800 hover:text-blue-500" href="/admin-categories">Home</a>
-            <a class="text-green-800 hover:text-blue-500" href="/add-quiz">Categories</a>
-            <a class="text-green-800 hover:text-blue-500" href="/dashboard">Login</a>
-            <a class="text-green-800 hover:text-blue-500" href="admin-logout">Blog</a>
+            <a class="text-green-800 hover:text-blue-500" href="/">Home</a>
+            <a class="text-green-800 hover:text-blue-500" href="/">Categories</a>
+            <a class="text-green-800 hover:text-blue-500" href="/login">Login</a>
+            <a class="text-green-800 hover:text-blue-500" href="/user-signup">Signup</a>
+            <a class="text-green-800 hover:text-blue-500" href="/blogs">Blog</a>
         </div>
     </div>
 </nav>

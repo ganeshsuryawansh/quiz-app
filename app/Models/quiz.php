@@ -10,4 +10,9 @@ class quiz extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    function Mcq()
+    {
+        return $this->hasMany(Mcq::class);
+    }
 }
