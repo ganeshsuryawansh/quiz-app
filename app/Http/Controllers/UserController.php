@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Mcq;
 use App\Models\quiz;
+use App\Models\Record;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -110,6 +111,41 @@ class UserController extends Controller
 
     function mcq($id, $name)
     {
-        return view('mcq-page');
+        $record = new Record();
+        $record->user_id = Session::get('user')->id;
+        $record->quiz_id = Session::get('firstMCQ')->quiz_id;
+        $record->status = 1;
+
+        if ($record->save()) {
+
+            $currentQuiz = [];
+            $currentQuiz['totalMcq'] = Mcq::where('quiz_id', Session::get('firstMCQ')->quiz_id)->count();
+            $currentQuiz['currentMcq'] = 1;
+            $currentQuiz['quizName'] = $name;
+            $currentQuiz['quizId'] = Session::get('firstMCQ')->quiz_id;
+
+            Session::put('currentQuiz', $currentQuiz);
+            $mcqdata = Mcq::find($id);
+
+            return view('mcq-page', data: ['quizName' => $name, "mcqdata" => $mcqdata]);
+        } else {
+            return "Something Went Wrong!";
+        }
+    }
+
+    function SubmiAndNext($id)
+    {
+        $currentQuiz = Session::get('currentQuiz');
+        $currentQuiz['currentMcq'] += 1;
+
+        $mcqdata = Mcq::where([['id', '>', $id], ['quiz_id', '=', $currentQuiz['quizId']]])->first();
+        Session::put('currentQuiz', $currentQuiz);
+
+        if (!empty($mcqdata)) {
+
+            return view('mcq-page', data: ['quizName' => $currentQuiz['quizName'], "mcqdata" => $mcqdata]);
+        } else {
+            return "Result Page!";
+        }
     }
 }
