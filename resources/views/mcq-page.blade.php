@@ -26,24 +26,25 @@
             <form action="/submit-next/{{ $mcqdata->id }}" method="post" class="space-y-4">
 
                 @csrf
+                <input type="hidden" name="id" value="{{ $mcqdata->id }}">
 
                 <label for="option_1" class="flex border p-3 mt-2 rounded-2xl shadow-2xl hover:bg-blue-50">
-                    <input id="option_1" class="form-radio text-blue-500" type="radio" name="option">
+                    <input id="option_1" value="A" class="form-radio text-blue-500" type="radio" name="option">
                     <span class="text-green-900 pl-2">{{ $mcqdata->a }}</span>
                 </label>
 
-                <label for="option_2" class="flex border p-3 mt-2 rounded-2xl shadow-2xl hover:bg-blue-50">
-                    <input id="option_2" class="form-radio text-blue-500" type="radio" name="option">
+                <label for=" option_2" class="flex border p-3 mt-2 rounded-2xl shadow-2xl hover:bg-blue-50">
+                    <input id="option_2" value="B" class="form-radio text-blue-500" type="radio" name="option">
                     <span class="text-green-900 pl-2">{{ $mcqdata->b }}</span>
                 </label>
 
                 <label for="option_3" class="flex border p-3 mt-2 rounded-2xl shadow-2xl hover:bg-blue-50">
-                    <input id="option_3" class="form-radio text-blue-500" type="radio" name="option">
+                    <input id="option_3" value="C" class="form-radio text-blue-500" type="radio" name="option">
                     <span class="text-green-900 pl-2">{{ $mcqdata->c }}</span>
                 </label>
 
                 <label for="option_4" class="flex border p-3 mt-2 rounded-2xl shadow-2xl hover:bg-blue-50">
-                    <input id="option_4 class=" form-radio text-blue-500" type="radio" name="option">
+                    <input id="option_4" value="D" class="form-radio text-blue-500" type="radio" name="option">
                     <span class="text-green-900 pl-2">{{ $mcqdata->d }}</span>
                 </label>
 

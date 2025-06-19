@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Mcq;
+use App\Models\MCQ_Records;
 use App\Models\quiz;
 use App\Models\Record;
 use App\Models\User;
@@ -123,6 +124,7 @@ class UserController extends Controller
             $currentQuiz['currentMcq'] = 1;
             $currentQuiz['quizName'] = $name;
             $currentQuiz['quizId'] = Session::get('firstMCQ')->quiz_id;
+            $currentQuiz['recordId'] = $record->id;
 
             Session::put('currentQuiz', $currentQuiz);
             $mcqdata = Mcq::find($id);
@@ -133,18 +135,41 @@ class UserController extends Controller
         }
     }
 
-    function SubmiAndNext($id)
+    function SubmiAndNext(Request $request)
     {
         $currentQuiz = Session::get('currentQuiz');
         $currentQuiz['currentMcq'] += 1;
+        $mcqdata = Mcq::where([['id', '>', $request->id], ['quiz_id', '=', $currentQuiz['quizId']]])->first();
 
-        $mcqdata = Mcq::where([['id', '>', $id], ['quiz_id', '=', $currentQuiz['quizId']]])->first();
+        $isExists = MCQ_Records::where([
+            ['record_id', '=', $currentQuiz['recordId']],
+            ['mcq_id', '=', $request->id]
+        ])->count();
+
+        if ($isExists < 1) {
+            $mcq_record = new MCQ_Records();
+            $mcq_record->record_id = $currentQuiz['recordId'];
+            $mcq_record->user_id = Session::get('user')->id;
+            $mcq_record->mcq_id = $request->id;
+            $mcq_record->select_answer = $request->option;
+
+            if ($request->option === Mcq::find($request->id)->correct_ans) {
+                $mcq_record->is_correct = 1;
+            } else {
+                $mcq_record->is_correct = 0;
+            }
+
+            if (!$mcq_record->save()) {
+                return "Something Went Wrong!";
+            }
+        }
+
         Session::put('currentQuiz', $currentQuiz);
 
         if (!empty($mcqdata)) {
-
             return view('mcq-page', data: ['quizName' => $currentQuiz['quizName'], "mcqdata" => $mcqdata]);
         } else {
+            return $resultData = MCQ_Records::where('record_id', $currentQuiz['recordId'])->get();
             return "Result Page!";
         }
     }
