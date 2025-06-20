@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\VerifyUser;
 use App\Models\Category;
 use App\Models\Mcq;
 use App\Models\MCQ_Records;
@@ -10,6 +11,7 @@ use App\Models\Record;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 
 
@@ -41,6 +43,14 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+
+        $link = "https://www.google.com/";
+
+        Mail::to($user->email)->send(new VerifyUser($link, 'Verify Your Email'));
+
+        if (!$user) {
+            return "Something Went Wrong!";
+        }
 
         if ($user) {
             Session::put('user', $user);
@@ -169,8 +179,37 @@ class UserController extends Controller
         if (!empty($mcqdata)) {
             return view('mcq-page', data: ['quizName' => $currentQuiz['quizName'], "mcqdata" => $mcqdata]);
         } else {
-            return $resultData = MCQ_Records::where('record_id', $currentQuiz['recordId'])->get();
-            return "Result Page!";
+            $resultData = MCQ_Records::WithMCQ()->where('record_id', $currentQuiz['recordId'])->get();
+
+            $correctCount = MCQ_Records::where([
+                ['record_id', '=', $currentQuiz['recordId']],
+                ['is_correct', '=', 1]
+            ])->count();
+
+            $record = Record::find($currentQuiz['recordId']);
+
+            if (!empty($record)) {
+                $record->status = 2; // 2 for completed
+                $record->update();
+            }
+
+            return view('quiz-result', ['resultData' => $resultData, 'correctans' => $correctCount]);
         }
+    }
+
+
+    function userDetails()
+    {
+        $record = Record::WithQuiz()->where('user_id', Session::get('user')->id)->get();
+        return view('user-details', ['quizRecords' => $record]);
+    }
+
+    function searchQuiz(Request $request)
+    {
+        $quizData = quiz::withCount('Mcq')->where('name', 'like', '%' . $request->search . '%')->get();
+        return view('quiz-search', [
+            'quizData' => $quizData,
+            'search' => $request->search
+        ]);
     }
 }
