@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
-
+use Spatie\Browsershot\Browsershot;
 
 class UserController extends Controller
 {
@@ -26,6 +26,13 @@ class UserController extends Controller
         $quizData = quiz::withCount('record')->orderBy('record_count', 'desc')->take(5)->get();
 
         return view('welcome', ['categories' => $category, 'quizData' => $quizData]);
+    }
+
+    function categories()
+    {
+        $category = Category::withCount('quizzes')->orderBy('quizzes_count', 'desc')->paginate(5);
+
+        return view('categories-list', ['categories' => $category]);
     }
 
     function userquizList($id, $category)
@@ -245,15 +252,12 @@ class UserController extends Controller
 
         return redirect('/')->with('success', 'A password reset link has been sent to your email address.');
     }
-
-
     function userResetForgotPassword($email)
     {
         $orgemail = Crypt::decryptString($email);
 
         return view('user-set-forgot-password', ['email' => $orgemail]);
     }
-
 
     function UserSetPassword(Request $request)
     {
@@ -269,5 +273,32 @@ class UserController extends Controller
                 return redirect('user-login')->with('success', 'Your password has been reset successfully! You can now login.');
             }
         }
+    }
+
+    function certificate()
+    {
+        $data = [];
+        $data['quiz'] = str_replace('-', ' ', Session::get('currentQuiz')['quizName']);
+        $data['name'] = Session::get('user')['name'];
+
+        return view('certificate', ['data' => $data]);
+    }
+
+    function downloadCertificate()
+    {
+        $data = [];
+        $data['quiz'] = str_replace('-', ' ', Session::get('currentQuiz')['quizName']);
+        $data['name'] = Session::get('user')['name'];
+
+        $html = view('download-certificate', ['data' => $data])->render();
+
+        return response(
+            Browsershot::html($html)
+                ->setOption('args', ['--disable-web-security'])
+                ->pdf()
+        )->header(
+            'Content-Disposition',
+            'attachment; filename="certificate.pdf"'
+        );
     }
 }

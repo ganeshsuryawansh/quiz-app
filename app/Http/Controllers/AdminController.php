@@ -6,6 +6,7 @@ use App\Models\admin;
 use App\Models\Category;
 use App\Models\Mcq;
 use App\Models\quiz;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use phpDocumentor\Reflection\DocBlock\Tags\See;
@@ -45,7 +46,9 @@ class AdminController extends Controller
         $admin = Session::get('admin');
 
         if ($admin) {
-            return view('admin', ['name' => $admin->name]);
+            $users = User::orderBy('id', 'desc')->paginate(10);
+
+            return view('admin', ['name' => $admin->name, 'users' => $users]);
         } else {
             return redirect('admin-login');
         }

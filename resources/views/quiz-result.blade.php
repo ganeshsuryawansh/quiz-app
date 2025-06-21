@@ -17,8 +17,12 @@
         <h1 class="text-3xl text-green-900 p-5">Quiz Result</h1>
 
         <div class="w-full max-w-md">
-
             <div class="w-full">
+
+                @if($correctans*100/count($resultData) >= 70)
+                <a href="/certificate" class="text-green-500 font-bold">View And Download Certificate</a>
+                @endif
+
                 <h1 class="text-2xl text-blue-500 my-3">{{ $correctans  }} out of {{ count($resultData) }} Correct!</h1>
 
                 <ul class="border border-gray-200">

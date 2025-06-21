@@ -57,6 +57,9 @@ Route::post('forgot-user-password', [UserController::class, 'ForgotUserPassword'
 Route::get('user-forgot-password/{email}', [UserController::class, 'userResetForgotPassword']);
 Route::post('user-forgot-password', [UserController::class, 'UserSetPassword']);
 
+Route::get('categories-list', [UserController::class, 'categories']);
+Route::get('certificate', [UserController::class, 'certificate']);
+Route::get('download-certificate', [UserController::class, 'downloadCertificate']);
 
 Route::get('user-login', function () {
     if (!Session::has('user')) {
