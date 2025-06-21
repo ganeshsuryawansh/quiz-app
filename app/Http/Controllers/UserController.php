@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserForgotPassword;
 use App\Mail\VerifyUser;
 use App\Models\Category;
 use App\Models\Mcq;
@@ -10,6 +11,7 @@ use App\Models\quiz;
 use App\Models\Record;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
@@ -19,9 +21,11 @@ class UserController extends Controller
 {
     function welcome()
     {
-        $category = Category::withCount('quizzes')->get();
-        // $category = Category::get();
-        return view('welcome', ['categories' => $category]);
+        $category = Category::withCount('quizzes')->orderBy('quizzes_count', 'desc')->take(5)->get();
+
+        $quizData = quiz::withCount('record')->orderBy('record_count', 'desc')->take(5)->get();
+
+        return view('welcome', ['categories' => $category, 'quizData' => $quizData]);
     }
 
     function userquizList($id, $category)
@@ -44,7 +48,8 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $link = "https://www.google.com/";
+        $link = Crypt::encryptString($user->email);
+        $link = url('/verify-user/' . $link);
 
         Mail::to($user->email)->send(new VerifyUser($link, 'Verify Your Email'));
 
@@ -58,7 +63,9 @@ class UserController extends Controller
 
                 $url = Session::get('quiz-url');
                 Session::forget('quiz-url');
-                return redirect($url);
+                return redirect($url)->with('success', 'Please verify your email to start the quiz.');
+            } else {
+                return redirect('/')->with('success', 'Please verify your email to start the quiz.');
             }
 
             return redirect('/');
@@ -97,11 +104,11 @@ class UserController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || Hash::check($request->password, $user->password)) {
-            return "User not Valid, Please check email and password!";
+        if (empty($user) || !Hash::check($request->password, $user->password)) {
+            return redirect('user-login')->with('error-msg', 'Invalid email or password.');
         }
 
-        if ($user) {
+        if (!empty($user)) {
             Session::put('user', $user);
             if (Session::has('quiz-url')) {
 
@@ -211,5 +218,56 @@ class UserController extends Controller
             'quizData' => $quizData,
             'search' => $request->search
         ]);
+    }
+
+    function verifyUser($email)
+    {
+        $orgemail = Crypt::decryptString($email);
+        $user = User::where('email', $orgemail)->first();
+
+        if (!empty($user)) {
+            $user->active = 2;
+
+            if ($user->save()) {
+                return redirect('/')->with('success', 'Your email has been verified successfully! You can now login.');
+            } else {
+                return redirect('/')->with('error', 'Email verification failed. Please try again.');
+            }
+        }
+    }
+
+    function ForgotUserPassword(Request $request)
+    {
+        $link = Crypt::encryptString($request->email);
+        $link = url('/user-forgot-password/' . $link);
+
+        Mail::to($request->email)->send(new UserForgotPassword($link));
+
+        return redirect('/')->with('success', 'A password reset link has been sent to your email address.');
+    }
+
+
+    function userResetForgotPassword($email)
+    {
+        $orgemail = Crypt::decryptString($email);
+
+        return view('user-set-forgot-password', ['email' => $orgemail]);
+    }
+
+
+    function UserSetPassword(Request $request)
+    {
+        $validate = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:3|confirmed',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+        if (!empty($user)) {
+            $user->password = Hash::make($request->password);
+            if ($user->save()) {
+                return redirect('user-login')->with('success', 'Your password has been reset successfully! You can now login.');
+            }
+        }
     }
 }

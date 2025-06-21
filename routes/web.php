@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -50,3 +51,26 @@ Route::post('user-login', [UserController::class, 'userLogin']);
 Route::get('user-login-quiz', [UserController::class, 'userLoginQuiz']);
 
 Route::get('search-quiz', [UserController::class, 'searchQuiz']);
+Route::get('verify-user/{email}', [UserController::class, 'verifyUser']);
+Route::view('forgot-user-password', 'forgot-user-password');
+Route::post('forgot-user-password', [UserController::class, 'ForgotUserPassword']);
+Route::get('user-forgot-password/{email}', [UserController::class, 'userResetForgotPassword']);
+Route::post('user-forgot-password', [UserController::class, 'UserSetPassword']);
+
+
+Route::get('user-login', function () {
+    if (!Session::has('user')) {
+        return view('user-login');
+    } else {
+        return redirect('/');
+    }
+});
+
+
+Route::get('user-signup', function () {
+    if (!Session::has('user')) {
+        return view('user-signup');
+    } else {
+        return redirect('/');
+    }
+});

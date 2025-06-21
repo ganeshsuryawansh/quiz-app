@@ -15,6 +15,19 @@
         <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm">
             <h2 class="text-2xl mb-6">User Login!</h2>
 
+            @if (session('error-msg'))
+            <div>
+                <p class="text-red-500 font-bold my-2">{{ session('error-msg') }}</p>
+            </div>
+            @endif
+
+            @if (session('success'))
+            <div>
+                <p class="text-green-500 font-bold my-2">{{ session('success') }}</p>
+            </div>
+            @endif
+
+
             @error('user')
             <div class="text-red-500">{{ $message }}</div>
             @enderror
@@ -40,6 +53,8 @@
 
                 <div>
                     <button type="submit" class="w-full bg-blue-500 rounded-xl px-4 py-2 text-white">Login</button>
+
+                    <a href="forgot-user-password" class="text-blue-500 my-2">Forgot Password?</a>
                 </div>
             </form>
 

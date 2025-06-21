@@ -15,4 +15,10 @@ class quiz extends Model
     {
         return $this->hasMany(Mcq::class);
     }
+
+
+    function record()
+    {
+        return $this->hasMany(Record::class);
+    }
 }

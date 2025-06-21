@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-    <title>Quiz List</title>
+    <title>Category Name: {{str_replace('-', ' ', $category)}}</title>
 </head>
 
 <body>
@@ -17,7 +17,7 @@
         <div class="bg-gray-100 flex flex-col items-center min-h-screen pt-5">
 
             <div class="w-200">
-                <h1 class="text-2xl text-green-800 my-3 font-bold">Category Name: {{ $category }}
+                <h1 class="text-2xl text-green-800 my-3 font-bold">Category Name: {{str_replace('-', ' ', $category)}}
                 </h1>
 
                 <ul class="border border-gray-200">
